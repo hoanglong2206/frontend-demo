@@ -38,13 +38,12 @@ export const useAuthStore = create<AuthState>()(
 		}),
 		{
 			name: "auth-session",
-			partialize: (state) => {
-				state.setIsHydrated(true);
-				return {
-					session: state.session,
-					user: state.user,
-					isHydrated: state.isHydrated,
-				};
+			partialize: (state) => ({
+				session: state.session,
+				user: state.user,
+			}),
+			onRehydrateStorage: () => (state) => {
+				state?.setIsHydrated(true);
 			},
 		},
 	),
