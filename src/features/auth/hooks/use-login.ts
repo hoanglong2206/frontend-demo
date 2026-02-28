@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "../api/auth.api";
-import { mapSessionDTO } from "../domain/auth.mapper";
+import { mapSessionDTO, mapUserDTO } from "../domain/auth.mapper";
 import { useAuthStore } from "../store/auth.store";
 import { authKeys } from "./auth.query";
 
@@ -12,8 +12,9 @@ export function useLogin() {
 		mutationFn: authApi.login,
 		onSuccess: (res) => {
 			const session = mapSessionDTO(res.data);
-			setSession(session);
-			queryClient.setQueryData(authKeys.me(), session.user);
+			const user = mapUserDTO(res.data.user);
+			setSession(session, user);
+			queryClient.setQueryData(authKeys.me(), user);
 		},
 	});
 }

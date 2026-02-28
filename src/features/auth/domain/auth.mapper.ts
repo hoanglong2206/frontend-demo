@@ -17,7 +17,6 @@ export function mapUserDTO(dto: UserDTO): User {
 
 export function mapSessionDTO(dto: SessionDTO): Session {
 	return {
-		user: mapUserDTO(dto.user),
 		accessToken: dto.access_token,
 		refreshToken: dto.refresh_token,
 		expiresAt: dto.expires_at,
