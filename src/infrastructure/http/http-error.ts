@@ -1,8 +1,10 @@
+import type { ApiErrorResponseDTO } from "@/infrastructure/http/api-client.types";
+
 export class HttpError extends Error {
 	constructor(
 		public readonly statusCode: number,
 		message: string,
-		public readonly data?: unknown,
+		public readonly data?: ApiErrorResponseDTO | unknown,
 	) {
 		super(message);
 		this.name = "HttpError";

@@ -5,6 +5,7 @@ import type {
 } from "axios";
 import { axiosInstance } from "./axios-instance";
 import { HttpError } from "./http-error";
+import type { ApiErrorResponseDTO } from "@/infrastructure/http/api-client.types";
 
 // Extend axios config to support retry flag
 declare module "axios" {
@@ -41,7 +42,7 @@ axiosInstance.interceptors.request.use(
 // Response interceptor: normalize errors
 axiosInstance.interceptors.response.use(
 	(response: AxiosResponse) => response,
-	async (error: AxiosError<{ message?: string; code?: string }>) => {
+	async (error: AxiosError<ApiErrorResponseDTO>) => {
 		const status = error.response?.status;
 		const message = error.response?.data?.message || error.message;
 		const code = error.response?.data?.code;
