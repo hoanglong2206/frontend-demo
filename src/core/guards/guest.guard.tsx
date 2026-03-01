@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { isAuthenticated } from "@/features/auth/domain/auth.rule";
+import { ROUTES } from "../config/route";
 
 interface GuestGuardProps {
 	children: React.ReactNode;
@@ -17,7 +18,7 @@ export function GuestGuard({ children }: GuestGuardProps) {
 	useEffect(() => {
 		if (!isHydrated) return;
 		if (isAuthenticated(session)) {
-			router.replace("/user/home");
+			router.replace(ROUTES.HOME);
 		}
 	}, [isHydrated, session, router]);
 

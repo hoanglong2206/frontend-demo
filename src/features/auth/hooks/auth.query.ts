@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { authApi } from "../api/auth.api";
 import { mapUserDTO } from "../domain/auth.mapper";
+import { APP_CONFIG } from "@/core/config/constants";
 
 // ── Query Keys ──
 
@@ -23,7 +24,7 @@ export function useCurrentUser() {
 			const res = await authApi.me();
 			return mapUserDTO(res.data);
 		},
-		staleTime: 5 * 60 * 1_000,
+		staleTime: APP_CONFIG.STALE_TIME_MS, // Cache for 5 minutes
 		retry: false,
 	});
 }
