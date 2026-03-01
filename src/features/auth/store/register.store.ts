@@ -1,3 +1,4 @@
+import { AUTH_CONFIG } from "@/core/config/constants";
 import { create } from "zustand";
 
 type RegisterStep = "email" | "otp" | "account";
@@ -19,6 +20,7 @@ interface RegisterState {
 	setAccountToken: (token: string) => void;
 	goToStep: (step: RegisterStep) => void;
 	incrementOtpAttempt: () => void;
+	resetOtpAttempts: () => void;
 	blockOtp: () => void;
 	resetFlow: () => void;
 }
@@ -48,9 +50,11 @@ export const useRegisterStore = create<RegisterState>((set) => ({
 			const newAttempts = state.otpAttempts + 1;
 			return {
 				otpAttempts: newAttempts,
-				isBlocked: newAttempts >= 3,
+				isBlocked: newAttempts >= AUTH_CONFIG.OTP_MAX_ATTEMPTS,
 			};
 		}),
+
+	resetOtpAttempts: () => set({ otpAttempts: 0, isBlocked: false }),
 
 	blockOtp: () => set({ isBlocked: true }),
 

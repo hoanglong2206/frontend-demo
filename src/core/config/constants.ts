@@ -7,3 +7,9 @@ export const APP_CONFIG = {
 	STALE_TIME_MS: 5 * 60 * 1000, // 5 minutes for React Query
 	GC_TIME_MS: 5 * 60 * 1000, // 5 minutes for React Query garbage collection
 } as const;
+
+export const AUTH_CONFIG = {
+	OTP_MAX_ATTEMPTS: 3,
+	RESEND_OTP_COOLDOWN_SECONDS: 60, // 1 minute cooldown for resending OTP
+	SESSION_BUFFER_MS: 60_000, // 1 minute buffer before actual expiry
+} as const;
