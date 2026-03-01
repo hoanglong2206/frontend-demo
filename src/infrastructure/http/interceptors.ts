@@ -48,15 +48,17 @@ axiosInstance.interceptors.response.use(
 		const code = error.response?.data?.code;
 
 		// 401 → attempt silent refresh
-		if (status === 401 && !error.config?._retry) {
-			error.config!._retry = true;
-			try {
-				await axiosInstance.post("/auth/refresh");
-				return axiosInstance(error.config!);
-			} catch {
-				// Refresh failed → force logout
-				window.dispatchEvent(new CustomEvent("auth:session-expired"));
-				return Promise.reject(new HttpError(401, "Session expired", code));
+		if (status === 401) {
+			if (error.config && !error.config._retry) {
+				error.config!._retry = true;
+				try {
+					await axiosInstance.post("/auth/refresh");
+					return axiosInstance(error.config!);
+				} catch {
+					// Refresh failed → force logout
+					window.dispatchEvent(new CustomEvent("auth:session-expired"));
+					return Promise.reject(new HttpError(401, "Session expired", code));
+				}
 			}
 		}
 

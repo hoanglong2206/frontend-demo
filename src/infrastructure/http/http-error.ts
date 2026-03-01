@@ -25,4 +25,8 @@ export class HttpError extends Error {
 	get isValidationError(): boolean {
 		return this.statusCode === 422;
 	}
+
+	get isServerError(): boolean {
+		return this.statusCode >= 500 && this.statusCode < 600;
+	}
 }
