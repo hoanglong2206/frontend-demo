@@ -22,6 +22,7 @@ import { loginSchema, type LoginFormValues } from "../domain/auth.schemas";
 import { useLogin } from "../hooks/use-login";
 import { OAuthButtons } from "./oauth-buttons";
 import { useState } from "react";
+import { toast } from "@/shared/hooks/use-toast";
 
 export function LoginForm() {
 	const router = useRouter();
@@ -31,7 +32,6 @@ export function LoginForm() {
 	const {
 		register,
 		handleSubmit,
-		setError,
 		formState: { errors },
 	} = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
@@ -39,12 +39,15 @@ export function LoginForm() {
 
 	const onSubmit = (data: LoginFormValues) => {
 		login(data, {
-			onSuccess: () => router.push(ROUTES.HOME),
+			onSuccess: () => {
+				toast.success("Welcome back!");
+				router.push(ROUTES.HOME);
+			},
 			onError: (err: unknown) => {
 				const message =
 					(err as { response?: { data?: { message?: string } } })?.response
 						?.data?.message ?? "Invalid email or password.";
-				setError("root", { message });
+				toast.error(message);
 			},
 		});
 	};
@@ -75,12 +78,6 @@ export function LoginForm() {
 							transition={{ duration: 0.3, ease: "easeOut" }}
 							className="space-y-4"
 						>
-							{errors.root && (
-								<p className="text-sm text-destructive/60 text-center rounded-md bg-destructive/10 px-3 py-2 font-medium">
-									{errors.root.message}
-								</p>
-							)}
-
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
 									<Label htmlFor="email">Email</Label>

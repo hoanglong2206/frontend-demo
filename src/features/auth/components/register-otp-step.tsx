@@ -13,6 +13,7 @@ import { useCountdown } from "@/shared/hooks/use-countdown";
 import { useRegisterStore } from "../store/register.store";
 import { useVerifyEmailOtp, useResendEmailOtp } from "../hooks/use-email-otp";
 import { canResendOtp, getRemainingAttempts } from "../domain/auth.rule";
+import { toast } from "@/shared/hooks/use-toast";
 import { AUTH_CONFIG } from "@/core/config/constants";
 import {
 	verifyEmailOtpSchema,
@@ -39,9 +40,8 @@ export function RegisterOtpStep() {
 	const {
 		control,
 		handleSubmit,
-		setError,
 		reset,
-		formState: { errors, isValid },
+		formState: { isValid },
 	} = useForm<VerifyEmailOtpFormValues>({
 		resolver: zodResolver(verifyEmailOtpSchema),
 		mode: "onChange",
@@ -54,6 +54,9 @@ export function RegisterOtpStep() {
 		verifyOtp(
 			{ email, otp, verification_token: verificationToken },
 			{
+				onSuccess: () => {
+					toast.success("Email verified! Please complete your account setup.");
+				},
 				onError: (err: unknown) => {
 					incrementOtpAttempt();
 					// otpAttempts is stale here; compute remaining from next value
@@ -67,7 +70,7 @@ export function RegisterOtpStep() {
 							? "Maximum attempts reached. Please request a new code."
 							: (serverMessage ??
 								`Invalid code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`);
-					setError("root", { message });
+					toast.error(message);
 					reset({ otp: "" });
 				},
 			},
@@ -82,12 +85,13 @@ export function RegisterOtpStep() {
 					resetOtpAttempts();
 					start(AUTH_CONFIG.RESEND_OTP_COOLDOWN_SECONDS);
 					reset({ otp: "" });
+					toast.success("A new verification code has been sent.");
 				},
 				onError: (err: unknown) => {
 					const message =
 						(err as { response?: { data?: { message?: string } } })?.response
 							?.data?.message ?? "Failed to resend code. Please try again.";
-					setError("root", { message });
+					toast.error(message);
 				},
 			},
 		);
@@ -127,12 +131,6 @@ export function RegisterOtpStep() {
 					)}
 				/>
 			</div>
-
-			{errors.root && (
-				<p className="text-sm text-destructive text-center">
-					{errors.root.message}
-				</p>
-			)}
 
 			<div className="text-center space-y-2">
 				<p className="text-xs text-muted-foreground">

@@ -14,6 +14,7 @@ import {
 } from "../domain/auth.schemas";
 import { useRegister } from "../hooks/use-register";
 import { useRegisterStore } from "../store/register.store";
+import { toast } from "@/shared/hooks/use-toast";
 
 export function RegisterAccountStep() {
 	const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +25,6 @@ export function RegisterAccountStep() {
 	const {
 		register: field,
 		handleSubmit,
-		setError,
 		watch,
 		formState: { errors, isValid },
 	} = useForm<RegisterFormValues>({
@@ -38,11 +38,14 @@ export function RegisterAccountStep() {
 		register(
 			{ fullName, email, password, account_token: accountToken },
 			{
+				onSuccess: () => {
+					toast.success("Account created! Welcome aboard.");
+				},
 				onError: (err: unknown) => {
 					const message =
 						(err as { response?: { data?: { message?: string } } })?.response
 							?.data?.message ?? "Registration failed. Please try again.";
-					setError("root", { message });
+					toast.error(message);
 				},
 			},
 		);
@@ -60,12 +63,6 @@ export function RegisterAccountStep() {
 					className="bg-muted"
 				/>
 			</div>
-
-			{errors.root && (
-				<p className="text-sm text-destructive text-center rounded-md bg-destructive/10 px-3 py-2">
-					{errors.root.message}
-				</p>
-			)}
 
 			<div className="space-y-2">
 				<div className="flex items-center justify-between">

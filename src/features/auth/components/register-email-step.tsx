@@ -12,6 +12,7 @@ import {
 } from "../domain/auth.schemas";
 import { useSendEmailOtp } from "../hooks/use-email-otp";
 import { useRegisterStore } from "../store/register.store";
+import { toast } from "@/shared/hooks/use-toast";
 
 export function RegisterEmailStep() {
 	const setStoreEmail = useRegisterStore((s) => s.setEmail);
@@ -20,7 +21,6 @@ export function RegisterEmailStep() {
 	const {
 		register,
 		handleSubmit,
-		setError,
 		formState: { errors, isValid },
 	} = useForm<EmailOtpFormValues>({
 		resolver: zodResolver(emailOtpSchema),
@@ -32,12 +32,15 @@ export function RegisterEmailStep() {
 		sendOtp(
 			{ email },
 			{
+				onSuccess: () => {
+					toast.success("Verification code sent to your email.");
+				},
 				onError: (err: unknown) => {
 					const message =
 						(err as { response?: { data?: { message?: string } } })?.response
 							?.data?.message ??
 						"Failed to send verification code. Please try again.";
-					setError("root", { message });
+					toast.error(message);
 				},
 			},
 		);
@@ -66,10 +69,6 @@ export function RegisterEmailStep() {
 						{...register("email")}
 					/>
 				</div>
-
-				{errors.root && (
-					<p className="text-sm text-destructive">{errors.root.message}</p>
-				)}
 			</div>
 
 			<p className="text-xs text-muted-foreground">
