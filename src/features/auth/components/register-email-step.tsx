@@ -1,33 +1,33 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
 import { Loader2, Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Button } from "@/shared/components/ui/button";
-import { emailOtpSchema } from "../domain/auth.schemas";
+import {
+	emailOtpSchema,
+	type EmailOtpFormValues,
+} from "../domain/auth.schemas";
 import { useSendEmailOtp } from "../hooks/use-email-otp";
 import { useRegisterStore } from "../store/register.store";
 
 export function RegisterEmailStep() {
-	const [email, setEmail] = useState("");
-	const [error, setError] = useState("");
-
 	const setStoreEmail = useRegisterStore((s) => s.setEmail);
 	const { mutate: sendOtp, isPending } = useSendEmailOtp();
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		setError("");
+	const {
+		register,
+		handleSubmit,
+		setError,
+		formState: { errors, isValid },
+	} = useForm<EmailOtpFormValues>({
+		resolver: zodResolver(emailOtpSchema),
+		mode: "onChange",
+	});
 
-		const result = emailOtpSchema.safeParse({ email });
-		if (!result.success) {
-			setError(result.error.issues[0]?.message ?? "Invalid email.");
-			return;
-		}
-
+	const onSubmit = ({ email }: EmailOtpFormValues) => {
 		setStoreEmail(email);
 		sendOtp(
 			{ email },
@@ -37,37 +37,46 @@ export function RegisterEmailStep() {
 						(err as { response?: { data?: { message?: string } } })?.response
 							?.data?.message ??
 						"Failed to send verification code. Please try again.";
-					setError(message);
+					setError("root", { message });
 				},
 			},
 		);
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="space-y-4">
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 			<div className="space-y-2">
-				<Label htmlFor="email">Email address</Label>
+				<div className="flex items-center justify-between">
+					<Label htmlFor="email">Email address</Label>
+					{errors.email && (
+						<p className="-mt-1 text-xs text-destructive/60 font-medium italic">
+							{errors.email.message}
+						</p>
+					)}
+				</div>
 				<div className="relative">
 					<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 					<Input
 						id="email"
 						type="email"
 						placeholder="name@example.com"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
 						className="pl-10"
 						disabled={isPending}
 						autoFocus
+						{...register("email")}
 					/>
 				</div>
-				{error && <p className="text-sm text-destructive">{error}</p>}
+
+				{errors.root && (
+					<p className="text-sm text-destructive">{errors.root.message}</p>
+				)}
 			</div>
 
 			<p className="text-xs text-muted-foreground">
 				We&apos;ll send a 6-digit verification code to this email address.
 			</p>
 
-			<Button type="submit" className="w-full" disabled={!email || isPending}>
+			<Button type="submit" className="w-full" disabled={!isValid || isPending}>
 				{isPending ? (
 					<>
 						<Loader2 className="mr-2 h-4 w-4 animate-spin" />

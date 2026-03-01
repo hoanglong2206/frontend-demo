@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	InputOTP,
 	InputOTPGroup,
@@ -13,11 +14,12 @@ import { useRegisterStore } from "../store/register.store";
 import { useVerifyEmailOtp, useResendEmailOtp } from "../hooks/use-email-otp";
 import { canResendOtp, getRemainingAttempts } from "../domain/auth.rule";
 import { AUTH_CONFIG } from "@/core/config/constants";
+import {
+	verifyEmailOtpSchema,
+	type VerifyEmailOtpFormValues,
+} from "../domain/auth.schemas";
 
 export function RegisterOtpStep() {
-	const [otp, setOtp] = useState("");
-	const [error, setError] = useState("");
-
 	const {
 		email,
 		verificationToken,
@@ -34,9 +36,20 @@ export function RegisterOtpStep() {
 		AUTH_CONFIG.RESEND_OTP_COOLDOWN_SECONDS,
 	);
 
-	const handleVerify = () => {
-		if (otp.length !== 6 || isBlocked) return;
-		setError("");
+	const {
+		control,
+		handleSubmit,
+		setError,
+		reset,
+		formState: { errors, isValid },
+	} = useForm<VerifyEmailOtpFormValues>({
+		resolver: zodResolver(verifyEmailOtpSchema),
+		mode: "onChange",
+		defaultValues: { otp: "" },
+	});
+
+	const onSubmit = ({ otp }: VerifyEmailOtpFormValues) => {
+		if (isBlocked) return;
 
 		verifyOtp(
 			{ email, otp, verification_token: verificationToken },
@@ -49,36 +62,32 @@ export function RegisterOtpStep() {
 						err as { response?: { data?: { message?: string } } }
 					)?.response?.data?.message;
 
-					if (remaining <= 0) {
-						setError("Maximum attempts reached. Please request a new code.");
-					} else {
-						setError(
-							serverMessage ??
-								`Invalid code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`,
-						);
-					}
-					setOtp("");
+					const message =
+						remaining <= 0
+							? "Maximum attempts reached. Please request a new code."
+							: (serverMessage ??
+								`Invalid code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`);
+					setError("root", { message });
+					reset({ otp: "" });
 				},
 			},
 		);
 	};
 
 	const handleResend = () => {
-		setError("");
-		setOtp("");
-
 		resendOtp(
 			{ email },
 			{
 				onSuccess: () => {
 					resetOtpAttempts();
 					start(AUTH_CONFIG.RESEND_OTP_COOLDOWN_SECONDS);
+					reset({ otp: "" });
 				},
 				onError: (err: unknown) => {
 					const message =
 						(err as { response?: { data?: { message?: string } } })?.response
 							?.data?.message ?? "Failed to resend code. Please try again.";
-					setError(message);
+					setError("root", { message });
 				},
 			},
 		);
@@ -87,7 +96,7 @@ export function RegisterOtpStep() {
 	const isPending = isVerifying || isResending;
 
 	return (
-		<div className="space-y-4">
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 			<div className="text-center space-y-1">
 				<p className="text-sm text-muted-foreground">
 					We sent a 6-digit verification code to
@@ -96,24 +105,34 @@ export function RegisterOtpStep() {
 			</div>
 
 			<div className="flex justify-center">
-				<InputOTP
-					maxLength={6}
-					value={otp}
-					onChange={setOtp}
-					disabled={isPending || isBlocked}
-				>
-					<InputOTPGroup>
-						<InputOTPSlot index={0} />
-						<InputOTPSlot index={1} />
-						<InputOTPSlot index={2} />
-						<InputOTPSlot index={3} />
-						<InputOTPSlot index={4} />
-						<InputOTPSlot index={5} />
-					</InputOTPGroup>
-				</InputOTP>
+				<Controller
+					name="otp"
+					control={control}
+					render={({ field }) => (
+						<InputOTP
+							maxLength={6}
+							value={field.value}
+							onChange={field.onChange}
+							disabled={isPending || isBlocked}
+						>
+							<InputOTPGroup>
+								<InputOTPSlot index={0} />
+								<InputOTPSlot index={1} />
+								<InputOTPSlot index={2} />
+								<InputOTPSlot index={3} />
+								<InputOTPSlot index={4} />
+								<InputOTPSlot index={5} />
+							</InputOTPGroup>
+						</InputOTP>
+					)}
+				/>
 			</div>
 
-			{error && <p className="text-sm text-destructive text-center">{error}</p>}
+			{errors.root && (
+				<p className="text-sm text-destructive text-center">
+					{errors.root.message}
+				</p>
+			)}
 
 			<div className="text-center space-y-2">
 				<p className="text-xs text-muted-foreground">
@@ -150,10 +169,9 @@ export function RegisterOtpStep() {
 			</div>
 
 			<Button
-				type="button"
+				type="submit"
 				className="w-full"
-				onClick={handleVerify}
-				disabled={otp.length !== 6 || isPending || isBlocked}
+				disabled={!isValid || isPending || isBlocked}
 			>
 				{isVerifying ? (
 					<>
@@ -164,6 +182,6 @@ export function RegisterOtpStep() {
 					"Verify"
 				)}
 			</Button>
-		</div>
+		</form>
 	);
 }

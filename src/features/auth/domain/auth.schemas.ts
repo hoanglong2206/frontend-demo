@@ -34,7 +34,7 @@ export const emailOtpSchema = z.object({
 });
 
 export const verifyEmailOtpSchema = z.object({
-	opt: z
+	otp: z
 		.string()
 		.min(1, "OTP is required")
 		.length(6, "OTP must be 6 digits")

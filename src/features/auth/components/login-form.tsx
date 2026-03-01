@@ -1,10 +1,10 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import {
 	Card,
@@ -17,19 +17,37 @@ import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Logo } from "@/core/layouts/components";
 import { Button } from "@/shared/components/ui/button";
+import { ROUTES } from "@/core/config/route";
+import { loginSchema, type LoginFormValues } from "../domain/auth.schemas";
+import { useLogin } from "../hooks/use-login";
 import { OAuthButtons } from "./oauth-buttons";
+import { useState } from "react";
 
 export function LoginForm() {
-	const [showPassword, setShowPassword] = useState<boolean>(false);
-	const [email, setEmail] = useState<string>("");
-	const [password, setPassword] = useState<string>("");
+	const router = useRouter();
+	const [showPassword, setShowPassword] = useState(false);
+	const { mutate: login, isPending } = useLogin();
 
-	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		if (!email || !password) {
-			return;
-		}
-	}
+	const {
+		register,
+		handleSubmit,
+		setError,
+		formState: { errors },
+	} = useForm<LoginFormValues>({
+		resolver: zodResolver(loginSchema),
+	});
+
+	const onSubmit = (data: LoginFormValues) => {
+		login(data, {
+			onSuccess: () => router.push(ROUTES.HOME),
+			onError: (err: unknown) => {
+				const message =
+					(err as { response?: { data?: { message?: string } } })?.response
+						?.data?.message ?? "Invalid email or password.";
+				setError("root", { message });
+			},
+		});
+	};
 
 	return (
 		<motion.div
@@ -47,7 +65,8 @@ export function LoginForm() {
 						Sign in to your account
 					</CardTitle>
 				</CardHeader>
-				<form onSubmit={onSubmit}>
+
+				<form onSubmit={handleSubmit(onSubmit)}>
 					<CardContent className="px-8">
 						<motion.div
 							initial={{ opacity: 0, x: 20 }}
@@ -56,27 +75,47 @@ export function LoginForm() {
 							transition={{ duration: 0.3, ease: "easeOut" }}
 							className="space-y-4"
 						>
+							{errors.root && (
+								<p className="text-sm text-destructive/60 text-center rounded-md bg-destructive/10 px-3 py-2 font-medium">
+									{errors.root.message}
+								</p>
+							)}
+
 							<div className="space-y-2">
-								<Label htmlFor="email">Email</Label>
+								<div className="flex items-center justify-between">
+									<Label htmlFor="email">Email</Label>
+									{errors.email && (
+										<p className="-mt-1 text-xs text-destructive/60 font-medium italic">
+											{errors.email.message}
+										</p>
+									)}
+								</div>
 								<Input
 									id="email"
 									type="email"
 									placeholder="name@example.com"
-									value={email}
-									onChange={(event) => setEmail(event.target.value)}
+									disabled={isPending}
+									autoFocus
+									{...register("email")}
 								/>
 							</div>
+
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
 									<Label htmlFor="password">Password</Label>
+									{errors.password && (
+										<p className="-mt-1 text-xs text-destructive/60 font-medium italic">
+											{errors.password.message}
+										</p>
+									)}
 								</div>
 								<div className="relative">
 									<Input
 										id="password"
 										type={showPassword ? "text" : "password"}
 										placeholder="Enter your password"
-										value={password}
-										onChange={(event) => setPassword(event.target.value)}
+										disabled={isPending}
+										{...register("password")}
 									/>
 									<Button
 										type="button"
@@ -95,7 +134,7 @@ export function LoginForm() {
 								</div>
 								<div className="flex justify-end">
 									<Link
-										href="#"
+										href={ROUTES.FORGOT_PASSWORD}
 										className="text-sm text-primary hover:underline"
 									>
 										Forgot password?
@@ -104,16 +143,24 @@ export function LoginForm() {
 							</div>
 						</motion.div>
 					</CardContent>
+
 					<CardFooter className="flex flex-col gap-4 px-8">
-						<Button type="submit" className="w-full">
-							Sign In
+						<Button type="submit" className="w-full" disabled={isPending}>
+							{isPending ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Signing in...
+								</>
+							) : (
+								"Sign In"
+							)}
 						</Button>
 						<div className="relative w-full">
 							<div className="absolute inset-0 flex items-center">
-								<span className="w-full border-t"></span>
+								<span className="w-full border-t" />
 							</div>
 							<div className="relative flex justify-center text-xs uppercase">
-								<span className="bg-background px-2 text-primary-500 font-medium">
+								<span className="bg-background px-2 text-muted-foreground font-medium">
 									Or continue with
 								</span>
 							</div>
@@ -121,7 +168,10 @@ export function LoginForm() {
 						<OAuthButtons />
 						<p className="text-center text-sm text-muted-foreground">
 							Don&apos;t have an account?{" "}
-							<Link href="/register" className="text-primary hover:underline">
+							<Link
+								href={ROUTES.REGISTER}
+								className="text-primary hover:underline"
+							>
 								Create account
 							</Link>
 						</p>
