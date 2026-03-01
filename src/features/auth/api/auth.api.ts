@@ -9,9 +9,11 @@ import type {
 	RegisterRequestDTO,
 	ResendEmailOtpDTO,
 	SendEmailOtpDTO,
+	SendEmailOtpResponseDTO,
 	SessionDTO,
 	UserDTO,
 	VerifyEmailOtpDTO,
+	VerifyEmailOtpResponseDTO,
 } from "./auth.api.type";
 
 // ══════ AUTH API ══════
@@ -33,11 +35,20 @@ export const authApi = {
 	me: () => httpGet<ApiResponse<UserDTO>>(`${BASE}/me`),
 
 	sendEmailOtp: (data: SendEmailOtpDTO) =>
-		httpPost<MessageResponseDTO>(`${BASE}/email/otp/send`, data),
+		httpPost<ApiResponse<SendEmailOtpResponseDTO>>(
+			`${BASE}/email/otp/send`,
+			data,
+		),
 
 	resendEmailOtp: (data: ResendEmailOtpDTO) =>
-		httpPost<MessageResponseDTO>(`${BASE}/email/otp/resend`, data),
+		httpPost<ApiResponse<SendEmailOtpResponseDTO>>(
+			`${BASE}/email/otp/resend`,
+			data,
+		),
 
 	verifyEmailOtp: (data: VerifyEmailOtpDTO) =>
-		httpPost<MessageResponseDTO>(`${BASE}/email/otp/verify`, data),
+		httpPost<ApiResponse<VerifyEmailOtpResponseDTO>>(
+			`${BASE}/email/otp/verify`,
+			data,
+		),
 };

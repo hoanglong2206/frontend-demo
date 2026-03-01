@@ -21,7 +21,7 @@ axiosInstance.interceptors.request.use(
 	(config: InternalAxiosRequestConfig) => {
 		// Token is read from localStorage at request time
 		if (typeof window !== "undefined") {
-			const stored = localStorage.getItem("auth-storage");
+			const stored = localStorage.getItem("auth-session");
 			if (stored) {
 				try {
 					const parsed = JSON.parse(stored);
