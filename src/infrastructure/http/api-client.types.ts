@@ -4,6 +4,11 @@ export interface ApiResponse<T> {
 	message?: string;
 }
 
+// ── Simple message response ──
+export interface MessageResponseDTO {
+	message: string;
+}
+
 // ── Paginated response wrapper ──
 export interface PaginatedResponse<T> {
 	data: T[];
@@ -11,17 +16,46 @@ export interface PaginatedResponse<T> {
 	page: number;
 	pageSize: number;
 	totalPages: number;
+	hasNextPage: boolean;
+	hasPrevPage: boolean;
+}
+
+export interface CursorPaginatedResponse<T> {
+	data: T[];
+	nextCursor?: string;
+	prevCursor?: string;
+	hasMore: boolean;
+}
+
+export interface PaginationParams {
+	page?: number;
+	pageSize?: number;
+}
+
+export interface CursorParams {
+	cursor?: string;
+	limit?: number;
+	direction?: "forward" | "backward";
 }
 
 // ── Server error shape (used by interceptors & HttpError) ──
 export interface ApiErrorResponseDTO {
+	code: string;
 	message: string;
-	code?: string;
-	/** Field-level validation errors, e.g. { email: ["is required"] } */
-	errors?: Record<string, string[]>;
+	detail?: Record<string, string[]>;
+	traceId?: string;
+	timestamp: string;
 }
 
-// ── Reusable success response carrying only a message ──
-export interface MessageResponseDTO {
-	message: string;
+// ─────────────────────────────────────────────────────────────────────────────
+// HTTP
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+export interface RequestConfig {
+	headers?: Record<string, string>;
+	signal?: AbortSignal;
+	timeout?: number;
+	withCredentials?: boolean;
 }
