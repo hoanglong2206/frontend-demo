@@ -1,1 +1,4 @@
-export { setupGlobalErrorHandler } from "./global-error-handler";
+export {
+	registerGlobalErrorHandler,
+	unregisterGlobalErrorHandler,
+} from "./global-error-handler";
