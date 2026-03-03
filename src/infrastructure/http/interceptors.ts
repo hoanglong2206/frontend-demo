@@ -9,6 +9,15 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import type { ApiResponse } from "./api-client.types";
 import type { SessionDTO } from "@/features/auth/api/auth.api.type";
 
+/** Dispatched when the session expires and cannot be refreshed. */
+export const SESSION_EXPIRED_EVENT = "session:expired";
+
+function dispatchSessionExpired(): void {
+	if (typeof window !== "undefined") {
+		window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+	}
+}
+
 // ══════ AXIOS INTERCEPTORS ══════
 
 type RefreshSubscriber = {
@@ -71,7 +80,7 @@ axiosInstance.interceptors.response.use(
 
 			if (!session?.refreshToken) {
 				clearSession();
-				redirectToLogin();
+				dispatchSessionExpired();
 				return Promise.reject(httpError);
 			}
 
@@ -118,7 +127,7 @@ axiosInstance.interceptors.response.use(
 				isRefreshing = false;
 				rejectSubscribers(refreshError);
 				clearSession();
-				redirectToLogin();
+				dispatchSessionExpired();
 				return Promise.reject(httpError);
 			}
 		}
@@ -126,11 +135,5 @@ axiosInstance.interceptors.response.use(
 		return Promise.reject(httpError);
 	},
 );
-
-function redirectToLogin(): void {
-	if (typeof window !== "undefined") {
-		window.location.href = "/login";
-	}
-}
 
 export { axiosInstance };
