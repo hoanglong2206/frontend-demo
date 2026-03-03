@@ -14,7 +14,7 @@ export const typedSessionStorage = {
 		try {
 			sessionStorage.setItem(key, JSON.stringify(value));
 		} catch {
-			// Storage quota exceeded — fail silently
+			console.warn(`Failed to set sessionStorage item "${key}"`); // Fail silently
 		}
 	},
 
@@ -26,5 +26,15 @@ export const typedSessionStorage = {
 	clear(): void {
 		if (typeof window === "undefined") return;
 		sessionStorage.clear();
+	},
+
+	has(key: string): boolean {
+		if (typeof window === "undefined") return false;
+		return sessionStorage.getItem(key) !== null;
+	},
+
+	keys(): string[] {
+		if (typeof window === "undefined") return [];
+		return Object.keys(sessionStorage);
 	},
 };

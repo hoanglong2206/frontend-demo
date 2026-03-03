@@ -42,7 +42,7 @@ export const typedCookieStorage = {
 			cookie += `; samesite=${sameSite}`;
 			document.cookie = cookie;
 		} catch {
-			// Fail silently
+			console.warn(`Failed to set cookie "${key}"`); // Fail silently
 		}
 	},
 
@@ -51,5 +51,29 @@ export const typedCookieStorage = {
 		options: Pick<CookieOptions, "path" | "domain"> = {},
 	): void {
 		this.set(key, "", { ...options, maxAge: 0 });
+	},
+
+	clear(): void {
+		if (typeof document === "undefined") return;
+		const cookies = document.cookie.split("; ");
+		for (const cookie of cookies) {
+			const eqPos = cookie.indexOf("=");
+			const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+			this.remove(decodeURIComponent(name));
+		}
+	},
+
+	has(key: string): boolean {
+		if (typeof document === "undefined") return false;
+		return document.cookie
+			.split("; ")
+			.some((row) => row.startsWith(`${encodeURIComponent(key)}=`));
+	},
+
+	keys(): string[] {
+		if (typeof document === "undefined") return [];
+		return document.cookie
+			.split("; ")
+			.map((cookie) => decodeURIComponent(cookie.split("=")[0] ?? ""));
 	},
 };

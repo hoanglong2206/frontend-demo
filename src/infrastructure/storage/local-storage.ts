@@ -14,7 +14,7 @@ export const typedLocalStorage = {
 		try {
 			localStorage.setItem(key, JSON.stringify(value));
 		} catch {
-			// Storage quota exceeded — fail silently
+			console.warn(`Failed to set localStorage item "${key}"`); // Fail silently
 		}
 	},
 
@@ -26,5 +26,15 @@ export const typedLocalStorage = {
 	clear(): void {
 		if (typeof window === "undefined") return;
 		localStorage.clear();
+	},
+
+	has(key: string): boolean {
+		if (typeof window === "undefined") return false;
+		return localStorage.getItem(key) !== null;
+	},
+
+	keys(): string[] {
+		if (typeof window === "undefined") return [];
+		return Object.keys(localStorage);
 	},
 };
