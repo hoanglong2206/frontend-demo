@@ -22,10 +22,20 @@ const BASE = "/auth";
 
 export const authApi = {
 	login: (data: LoginRequestDTO) =>
-		httpPost<ApiResponse<SessionDTO>>(`${BASE}/login`, data),
+		httpPost<
+			ApiResponse<{
+				user: UserDTO;
+				session: SessionDTO;
+			}>
+		>(`${BASE}/login`, data),
 
 	register: (data: RegisterRequestDTO) =>
-		httpPost<ApiResponse<SessionDTO>>(`${BASE}/register`, data),
+		httpPost<
+			ApiResponse<{
+				user: UserDTO;
+				session: SessionDTO;
+			}>
+		>(`${BASE}/register`, data),
 
 	logout: () => httpPost<MessageResponseDTO>(`${BASE}/logout`),
 

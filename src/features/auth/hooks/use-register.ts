@@ -13,7 +13,7 @@ export function useRegister() {
 	return useMutation({
 		mutationFn: authApi.register,
 		onSuccess: (res) => {
-			const session = mapSessionDTO(res.data);
+			const session = mapSessionDTO(res.data.session);
 			const user = mapUserDTO(res.data.user);
 			setSession(session, user);
 			queryClient.setQueryData(authKeys.me(), user);

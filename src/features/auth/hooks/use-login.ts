@@ -11,7 +11,7 @@ export function useLogin() {
 	return useMutation({
 		mutationFn: authApi.login,
 		onSuccess: (res) => {
-			const session = mapSessionDTO(res.data);
+			const session = mapSessionDTO(res.data.session);
 			const user = mapUserDTO(res.data.user);
 			setSession(session, user);
 			queryClient.setQueryData(authKeys.me(), user);

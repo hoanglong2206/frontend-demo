@@ -1,17 +1,15 @@
 ﻿import type { Session, User } from "./auth.types";
 import type { SessionDTO, UserDTO } from "../api/auth.api.type";
+import { asISODate, asID } from "@/shared/types/common.type";
 
 export function mapUserDTO(dto: UserDTO): User {
 	return {
-		id: dto.id,
-		fullName: dto.full_name,
+		id: asID(dto.id),
 		email: dto.email,
-		avatarUrl: dto.avatar_url,
-		gender: dto.gender,
-		dateOfBirth: dto.date_of_birth,
 		isVerified: dto.is_verified,
-		createdAt: dto.created_at,
-		updatedAt: dto.updated_at,
+		isActive: dto.is_active,
+		createdAt: asISODate(dto.created_at),
+		updatedAt: asISODate(dto.updated_at),
 	};
 }
 
