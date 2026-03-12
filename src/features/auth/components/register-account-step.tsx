@@ -12,7 +12,7 @@ import {
 	registerSchema,
 	type RegisterFormValues,
 } from "../domain/auth.schemas";
-import { useRegister } from "../hooks/use-register";
+import { useCreateAccount } from "../hooks/use-create-account";
 import { useRegisterStore } from "../store/register.store";
 import { toast } from "@/shared/hooks/use-toast";
 
@@ -20,7 +20,7 @@ export function RegisterAccountStep() {
 	const [showPassword, setShowPassword] = useState(false);
 
 	const { email, accountToken } = useRegisterStore();
-	const { mutate: register, isPending } = useRegister();
+	const { mutate: createAccount, isPending } = useCreateAccount();
 
 	const {
 		register: field,
@@ -35,7 +35,7 @@ export function RegisterAccountStep() {
 	const password = watch("password", "");
 
 	const onSubmit = ({ fullName, password }: RegisterFormValues) => {
-		register(
+		createAccount(
 			{ fullName, email, password, account_token: accountToken },
 			{
 				onSuccess: () => {

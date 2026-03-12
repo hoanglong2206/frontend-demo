@@ -5,7 +5,7 @@ export interface LoginRequestDTO {
 	password: string;
 }
 
-export interface RegisterRequestDTO {
+export interface CreateAccountDTO {
 	fullName: string;
 	email: string;
 	password: string;
@@ -16,7 +16,7 @@ export interface ForgotPasswordDTO {
 	email: string;
 }
 
-export interface SendEmailOtpDTO {
+export interface RegisterEmailDTO {
 	email: string;
 }
 
@@ -47,7 +47,7 @@ export interface SessionDTO {
 	expires_at: number; // Unix timestamp (ms)
 }
 
-export interface SendEmailOtpResponseDTO {
+export interface RegisterEmailResponseDTO {
 	verification_token: string; // Temporary token for OTP verification flow
 	expires_at: number; // Unix timestamp (ms)
 }

@@ -1,9 +1,9 @@
 export { useLogin } from "./use-login";
-export { useRegister } from "./use-register";
+export { useCreateAccount } from "./use-create-account";
 export { useLogout } from "./use-logout";
 export { useForgotPassword } from "./use-forgot-password";
 export {
-	useSendEmailOtp,
+	useRegisterEmail,
 	useVerifyEmailOtp,
 	useResendEmailOtp,
 } from "./use-email-otp";

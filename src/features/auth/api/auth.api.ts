@@ -6,10 +6,10 @@ import type {
 import type {
 	ForgotPasswordDTO,
 	LoginRequestDTO,
-	RegisterRequestDTO,
+	CreateAccountDTO,
 	ResendEmailOtpDTO,
-	SendEmailOtpDTO,
-	SendEmailOtpResponseDTO,
+	RegisterEmailDTO,
+	RegisterEmailResponseDTO,
 	SessionDTO,
 	UserDTO,
 	VerifyEmailOtpDTO,
@@ -29,36 +29,34 @@ export const authApi = {
 			}>
 		>(`${BASE}/login`, data),
 
-	register: (data: RegisterRequestDTO) =>
+	createAccount: (data: CreateAccountDTO) =>
 		httpPost<
 			ApiResponse<{
 				user: UserDTO;
 				session: SessionDTO;
 			}>
-		>(`${BASE}/register`, data),
+		>(`${BASE}/create-account`, data),
 
-	logout: () => httpPost<MessageResponseDTO>(`${BASE}/logout`),
+	logout: (data: { refresh_token: string }) =>
+		httpPost<MessageResponseDTO>(`${BASE}/logout`, data),
 
 	forgotPassword: (data: ForgotPasswordDTO) =>
 		httpPost<MessageResponseDTO>(`${BASE}/forgot-password`, data),
 
 	me: () => httpGet<ApiResponse<UserDTO>>(`${BASE}/me`),
 
-	sendEmailOtp: (data: SendEmailOtpDTO) =>
-		httpPost<ApiResponse<SendEmailOtpResponseDTO>>(
-			`${BASE}/email/otp/send`,
+	registerEmail: (data: RegisterEmailDTO) =>
+		httpPost<ApiResponse<RegisterEmailResponseDTO>>(
+			`${BASE}/register-email`,
 			data,
 		),
 
 	resendEmailOtp: (data: ResendEmailOtpDTO) =>
-		httpPost<ApiResponse<SendEmailOtpResponseDTO>>(
-			`${BASE}/email/otp/resend`,
-			data,
-		),
+		httpPost<ApiResponse<RegisterEmailResponseDTO>>(`${BASE}/resend-otp`, data),
 
 	verifyEmailOtp: (data: VerifyEmailOtpDTO) =>
 		httpPost<ApiResponse<VerifyEmailOtpResponseDTO>>(
-			`${BASE}/email/otp/verify`,
+			`${BASE}/verify-otp`,
 			data,
 		),
 };
