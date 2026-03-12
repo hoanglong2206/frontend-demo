@@ -40,11 +40,15 @@ export interface CursorParams {
 
 // ── Server error shape (used by interceptors & HttpError) ──
 export interface ApiErrorResponseDTO {
-	code: string;
-	message: string;
-	detail?: Record<string, string[]>;
-	traceId?: string;
-	timestamp: string;
+	success: false;
+	error: {
+		statusCode: number;
+		message: string;
+	};
+	meta: {
+		timestamp: string;
+		path: string;
+	};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

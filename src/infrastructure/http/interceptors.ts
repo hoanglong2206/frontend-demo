@@ -4,9 +4,9 @@ import type {
 	AxiosError,
 } from "axios";
 import { axiosInstance } from "./axios-instance";
-import { createHttpError } from "./http-error";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import type { ApiResponse } from "./api-client.types";
+import { createHttpError } from "./http-error";
 import type { SessionDTO } from "@/features/auth/api/auth.api.type";
 
 /** Dispatched when the session expires and cannot be refreshed. */
