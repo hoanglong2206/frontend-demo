@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,10 +21,8 @@ import { loginSchema, type LoginFormValues } from "../domain/auth.schemas";
 import { useLogin } from "../hooks/use-login";
 import { OAuthButtons } from "./oauth-buttons";
 import { useState } from "react";
-import { toast } from "@/shared/hooks/use-toast";
 
 export function LoginForm() {
-	const router = useRouter();
 	const [showPassword, setShowPassword] = useState(false);
 	const { mutate: login, isPending } = useLogin();
 
@@ -38,18 +35,7 @@ export function LoginForm() {
 	});
 
 	const onSubmit = (data: LoginFormValues) => {
-		login(data, {
-			onSuccess: () => {
-				toast.success("Welcome back!");
-				router.push(ROUTES.HOME);
-			},
-			onError: (err: unknown) => {
-				const message =
-					(err as { response?: { data?: { message?: string } } })?.response
-						?.data?.message ?? "Invalid email or password.";
-				toast.error(message);
-			},
-		});
+		login(data);
 	};
 
 	return (

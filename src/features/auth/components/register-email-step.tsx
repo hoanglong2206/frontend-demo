@@ -10,13 +10,12 @@ import {
 	emailOtpSchema,
 	type EmailOtpFormValues,
 } from "../domain/auth.schemas";
-import { useSendEmailOtp } from "../hooks/use-email-otp";
+import { useRegisterEmail } from "../hooks/use-email-otp";
 import { useRegisterStore } from "../store/register.store";
-import { toast } from "@/shared/hooks/use-toast";
 
 export function RegisterEmailStep() {
 	const setStoreEmail = useRegisterStore((s) => s.setEmail);
-	const { mutate: sendOtp, isPending } = useSendEmailOtp();
+	const { mutate: registerEmail, isPending } = useRegisterEmail();
 
 	const {
 		register,
@@ -29,21 +28,7 @@ export function RegisterEmailStep() {
 
 	const onSubmit = ({ email }: EmailOtpFormValues) => {
 		setStoreEmail(email);
-		sendOtp(
-			{ email },
-			{
-				onSuccess: () => {
-					toast.success("Verification code sent to your email.");
-				},
-				onError: (err: unknown) => {
-					const message =
-						(err as { response?: { data?: { message?: string } } })?.response
-							?.data?.message ??
-						"Failed to send verification code. Please try again.";
-					toast.error(message);
-				},
-			},
-		);
+		registerEmail({ email });
 	};
 
 	return (

@@ -13,7 +13,6 @@ import { useCountdown } from "@/shared/hooks/use-countdown";
 import { useRegisterStore } from "../store/register.store";
 import { useVerifyEmailOtp, useResendEmailOtp } from "../hooks/use-email-otp";
 import { canResendOtp, getRemainingAttempts } from "../domain/auth.rule";
-import { toast } from "@/shared/hooks/use-toast";
 import { AUTH_CONFIG } from "@/core/config/constants";
 import {
 	verifyEmailOtpSchema,
@@ -21,14 +20,8 @@ import {
 } from "../domain/auth.schemas";
 
 export function RegisterOtpStep() {
-	const {
-		email,
-		verificationToken,
-		otpAttempts,
-		isBlocked,
-		incrementOtpAttempt,
-		resetOtpAttempts,
-	} = useRegisterStore();
+	const { email, verificationToken, otpAttempts, isBlocked } =
+		useRegisterStore();
 
 	const { mutate: verifyOtp, isPending: isVerifying } = useVerifyEmailOtp();
 	const { mutate: resendOtp, isPending: isResending } = useResendEmailOtp();
@@ -50,31 +43,7 @@ export function RegisterOtpStep() {
 
 	const onSubmit = ({ otp }: VerifyEmailOtpFormValues) => {
 		if (isBlocked) return;
-
-		verifyOtp(
-			{ email, otp, verification_token: verificationToken },
-			{
-				onSuccess: () => {
-					toast.success("Email verified! Please complete your account setup.");
-				},
-				onError: (err: unknown) => {
-					incrementOtpAttempt();
-					// otpAttempts is stale here; compute remaining from next value
-					const remaining = getRemainingAttempts(otpAttempts + 1);
-					const serverMessage = (
-						err as { response?: { data?: { message?: string } } }
-					)?.response?.data?.message;
-
-					const message =
-						remaining <= 0
-							? "Maximum attempts reached. Please request a new code."
-							: (serverMessage ??
-								`Invalid code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`);
-					toast.error(message);
-					reset({ otp: "" });
-				},
-			},
-		);
+		verifyOtp({ email, otp, verification_token: verificationToken });
 	};
 
 	const handleResend = () => {
@@ -82,16 +51,9 @@ export function RegisterOtpStep() {
 			{ email },
 			{
 				onSuccess: () => {
-					resetOtpAttempts();
-					start(AUTH_CONFIG.RESEND_OTP_COOLDOWN_SECONDS);
+					// Khởi động lại đếm ngược và xóa giá trị trong ô OTP
+					start();
 					reset({ otp: "" });
-					toast.success("A new verification code has been sent.");
-				},
-				onError: (err: unknown) => {
-					const message =
-						(err as { response?: { data?: { message?: string } } })?.response
-							?.data?.message ?? "Failed to resend code. Please try again.";
-					toast.error(message);
 				},
 			},
 		);
@@ -135,7 +97,13 @@ export function RegisterOtpStep() {
 			<div className="text-center space-y-2">
 				<p className="text-xs text-muted-foreground">
 					Attempts remaining:{" "}
-					<span className="font-medium text-foreground">
+					<span
+						className={
+							isBlocked
+								? "font-medium text-destructive"
+								: "font-medium text-foreground"
+						}
+					>
 						{getRemainingAttempts(otpAttempts)}
 					</span>
 				</p>

@@ -4,6 +4,8 @@ import { mapSessionDTO, mapUserDTO } from "../domain/auth.mapper";
 import { useAuthStore } from "../store/auth.store";
 import { useRegisterStore } from "../store/register.store";
 import { authKeys } from "./auth.query";
+import { toast } from "@/shared/hooks/use-toast";
+import { isHttpError } from "@/infrastructure/http/http-error";
 
 export function useCreateAccount() {
 	const queryClient = useQueryClient();
@@ -15,9 +17,19 @@ export function useCreateAccount() {
 		onSuccess: (res) => {
 			const session = mapSessionDTO(res.data.session);
 			const user = mapUserDTO(res.data.user);
+
+			toast.success("Account created successfully!");
+
 			setSession(session, user);
 			queryClient.setQueryData(authKeys.me(), user);
 			resetFlow();
+		},
+		onError: (err: unknown) => {
+			if (isHttpError(err)) {
+				toast.error(err.data.error.message);
+			} else {
+				toast.error("Something went wrong. Please try again.");
+			}
 		},
 	});
 }

@@ -14,7 +14,6 @@ import {
 } from "../domain/auth.schemas";
 import { useCreateAccount } from "../hooks/use-create-account";
 import { useRegisterStore } from "../store/register.store";
-import { toast } from "@/shared/hooks/use-toast";
 
 export function RegisterAccountStep() {
 	const [showPassword, setShowPassword] = useState(false);
@@ -35,20 +34,7 @@ export function RegisterAccountStep() {
 	const password = watch("password", "");
 
 	const onSubmit = ({ fullName, password }: RegisterFormValues) => {
-		createAccount(
-			{ fullName, email, password, account_token: accountToken },
-			{
-				onSuccess: () => {
-					toast.success("Account created! Welcome aboard.");
-				},
-				onError: (err: unknown) => {
-					const message =
-						(err as { response?: { data?: { message?: string } } })?.response
-							?.data?.message ?? "Registration failed. Please try again.";
-					toast.error(message);
-				},
-			},
-		);
+		createAccount({ fullName, email, password, account_token: accountToken });
 	};
 
 	return (
