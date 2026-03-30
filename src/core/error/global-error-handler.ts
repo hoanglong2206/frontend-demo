@@ -20,7 +20,6 @@ interface ErrorContext {
 // Internal state
 // ─────────────────────────────────────────────────────────────────────────────
 let _registered = false;
-let registeredOnError: GlobalErrorHandlerOptions["onError"];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Public API
@@ -33,7 +32,6 @@ export function registerGlobalErrorHandler(
 	if (_registered) return;
 
 	_registered = true;
-	registeredOnError = options.onError;
 
 	// ── window.onerror ────────────────────────────────────────────────────────
 	window.onerror = (message, source, lineno, colno, error) => {
