@@ -5,5 +5,11 @@ export const ROUTES = {
 	FORGOT_PASSWORD: "/forgot-password",
 
 	// ── Main ──
-	HOME: "/user/home",
+	HOME: "/home",
+	USER_CHAT: "/chat",
+	USER_DISCOVER: "/discover",
+
+	// ── Settings ──
+	SETTINGS_PROFILE: "/settings/profile",
+	SETTINGS_SECURITY: "/settings/security",
 } as const;
