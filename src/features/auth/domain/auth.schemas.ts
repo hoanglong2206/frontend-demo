@@ -53,5 +53,5 @@ export const forgotPasswordSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type EmailOtpFormValues = z.infer<typeof emailOtpSchema>;
-export type VerifyEmailOtpFormValues = z.infer<typeof verifyEmailOtpSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+export type VerifyEmailOtpFormValues = z.infer<typeof verifyEmailOtpSchema>;
