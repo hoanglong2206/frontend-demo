@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password"];
-const PROTECTED_ROUTE_PREFIX = ["home", "chat", "discover", "settings", "ai"];
-const DYNAMIC_PROTECTED_ROUTES = /^\/[^\/]+$/;
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password", "/home", "/chat", "/discover"];
+const PROTECTED_ROUTE_PREFIX = ["settings", "ai"];
+// Profile routes (/:username) are public in the Instagram demo
+const DYNAMIC_PROTECTED_ROUTES = /^\/(?!home|chat|discover)[^\/]+$/;
 
 export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
@@ -37,3 +38,4 @@ export const config = {
 	// Run middleware on all routes except static assets and API routes
 	matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
 };
+
