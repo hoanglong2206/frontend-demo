@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-import { Toaster } from "@/shared/components/ui/sonner";
+import { ToasterContainer } from "@/shared/components/ui/toast-container";
 import { QueryProvider } from "./query-provider";
 import { SessionProvider } from "./session-provider";
 import { ThemeProvider } from "./theme-provider";
@@ -30,9 +30,9 @@ export function AppProviders({ children }: AppProvidersProps) {
 	}, []);
 	return (
 		<QueryProvider>
-			<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+			<ThemeProvider attribute="class" defaultTheme="light" enableSystem>
 				<SessionProvider>{children}</SessionProvider>
-				<Toaster />
+				<ToasterContainer />
 			</ThemeProvider>
 		</QueryProvider>
 	);
