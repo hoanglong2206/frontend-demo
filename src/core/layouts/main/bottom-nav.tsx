@@ -25,7 +25,7 @@ export function BottomNav() {
 
 	return (
 		<nav className="md:hidden fixed inset-x-0 bottom-0 z-50 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] px-3 pointer-events-none">
-			<div className="pointer-events-auto rounded-2xl bg-teal-400 border border-white/20 shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
+			<div className="pointer-events-auto rounded-2xl bg-teal-500 border border-white/20 shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
 				<div className="flex items-center justify-between h-16 px-1.5">
 					{bottomNavItems.map((item) => {
 						const isActive =
